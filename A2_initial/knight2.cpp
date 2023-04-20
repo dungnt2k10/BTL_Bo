@@ -279,6 +279,7 @@ void KnightAdventure::loadArmyKnights(const string& file_name){
 
 void KnightAdventure::run(){
     armyKnights->printInfo();
+    cout << "test";
     //BaseItem * antidote = new Phoenixdown2();
     //cout << armyKnights->array_of_knights[0].bag->toString();
     //armyKnights->array_of_knights[0].bag->insertFirst(antidote); //test insertfirst ok
