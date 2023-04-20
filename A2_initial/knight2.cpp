@@ -275,8 +275,14 @@ void KnightAdventure::loadArmyKnights(const string& file_name){
     armyKnights = new ArmyKnights(file_name);
 }
 
+void KnightAdventure::loadEvents(const string& file_name){
+    events = new Events(file_name);
+}
+
 void KnightAdventure::run(){
     armyKnights->printInfo();
+    //cout << events->count() << endl; //test load event ok
+    //cout << events->get(0) << endl;
     //BaseItem * antidote = new Phoenixdown2();
     //cout << armyKnights->array_of_knights[0].bag->toString();
     //armyKnights->array_of_knights[0].bag->insertFirst(antidote); //test insertfirst ok
@@ -291,6 +297,21 @@ void KnightAdventure::run(){
 
 int Events::count() const{
     return num_of_events;
+}
+
+Events::Events(const string & file_events){
+        ifstream file;
+        file.open(file_events, ifstream::in);
+        string temp = "";
+        getline(file, temp);
+        num_of_events = stoi(temp);
+        string arr_temp[1024];
+        arr_of_events = new int[num_of_events];
+        getline(file, temp);
+        split(temp,' ',arr_temp);
+        for (int i = 0; i < num_of_events; i++){
+            arr_of_events[i] = stoi(arr_temp[i]);
+        }
 }
 
 

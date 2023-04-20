@@ -18,7 +18,7 @@ int main(int argc, char ** argv) {
     // BEBGIN
     KnightAdventure * knightAdventure = new KnightAdventure();
     knightAdventure->loadArmyKnights(file_armyknights);
-    //knightAdventure->loadEvents(file_events);
+    knightAdventure->loadEvents(file_events);
     knightAdventure->run();
 
     delete knightAdventure;

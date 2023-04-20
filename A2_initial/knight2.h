@@ -165,23 +165,14 @@ class Events {
 public:
     int num_of_events;
     int * arr_of_events;
-    Events(const string & file_events){
-        ifstream file;
-        file.open(file_events, ifstream::in);
-        int temp;
-        file >> temp; num_of_events = temp;
-        arr_of_events = new int[count()];
-        file >> temp; //nothing
-        for (int i = 0; i < num_of_events; i++){
-            file >> temp;
-            arr_of_events[i] = temp;
-        }
-    };
+    Events(const string & file_events);
     ~Events(){
         delete[] arr_of_events;
-    };
+    }
     int count() const;
-    int get(int i) const;
+    int get(int i) const{
+        return arr_of_events[i];
+    }
 };
 
 class KnightAdventure {
