@@ -23,7 +23,14 @@ public:
 };
 
 
-class BaseOpponent;
+class BaseOpponent{
+protected:
+    int hp;
+    int dmg;
+    int level;
+public:
+    void modifyStat();
+};
 
 enum KnightType { PALADIN = 0, LANCELOT, DRAGON, NORMAL };
 class BaseKnight {
