@@ -1,5 +1,8 @@
 #include "knight2.h"
 
+int event_counter = 0;
+bool win = 0;
+
 /* * * BEGIN implementation of class BaseBag * * */
 
 string BaseBag::toString() const{
@@ -213,12 +216,12 @@ void ArmyKnights::printInfo() const {
         BaseKnight * lknight = lastKnight(); // last knight
         cout << ";" << lknight->toString() << endl;
     }
-    /*cout << ";PaladinShield:" << this->hasPaladinShield()
+    cout << ";PaladinShield:" << this->hasPaladinShield()
         << ";LancelotSpear:" << this->hasLancelotSpear()
         << ";GuinevereHair:" << this->hasGuinevereHair()
         << ";ExcaliburSword:" << this->hasExcaliburSword()
         << endl
-        << string(50, '-') << endl; */
+        << string(50, '-') << endl; 
 }
 
 void ArmyKnights::printResult(bool win) const {
@@ -226,7 +229,7 @@ void ArmyKnights::printResult(bool win) const {
 }
 
 int ArmyKnights::count() const{
-    return this->num;
+    return this->nok;
 }
 
 ArmyKnights::ArmyKnights(const string& file_armyknights){
@@ -234,15 +237,16 @@ ArmyKnights::ArmyKnights(const string& file_armyknights){
     file.open(file_armyknights, ifstream::in);
     string number_of_knights = "";
     getline(file, number_of_knights); // get number of knights to create
-    num = stoi(number_of_knights);
-    array_of_knights = new BaseKnight[num]; //create an array to store 
+    nok = stoi(number_of_knights);
+    num = nok - 1;
+    array_of_knights = new BaseKnight[nok]; //create an array to store 
     int id = 1;
     BaseKnight new_knight;
     string temp = "";
     string arr[5];
     int attr[5];
-    armybag = new BaseBag * [num];
-    for (int i = 0; i < num; i++){ // create and load parameter to knights
+    armybag = new BaseBag * [nok];
+    for (int i = 0; i < nok; i++){ // create and load parameter to knights
         getline(file, temp);
         split(temp, ' ', arr);
         for (int j = 0; j < 5; j++) attr[j] = stoi(arr[j]); //convert string to int
@@ -250,6 +254,10 @@ ArmyKnights::ArmyKnights(const string& file_armyknights){
 
         id++;
     }
+    PaladinShield = 0;
+    LancelotSpear = 0;
+    GuinevereHair = 0;
+    ExcaliburSword = 0;
     file.close();
 }
 
@@ -262,6 +270,135 @@ BaseKnight * ArmyKnights::lastKnight() const {
     return array_of_knights; //return pointer to the last knight
 }
 
+bool ArmyKnights::fight(BaseOpponent * opponent){
+    if (lastKnight()->get_hp() <= 0 || lastKnight() == nullptr){
+        return false;
+    }
+    if (opponent->get_type() == 1 || opponent->get_type() == 2 || opponent->get_type() == 3 || opponent->get_type() == 4 || opponent->get_type() == 5){
+        if(array_of_knights[num].get_knightType() == LANCELOT || array_of_knights[num].get_knightType() == PALADIN || array_of_knights[num].get_level() >= opponent->get_level()){
+            array_of_knights[num].reward_gil(opponent->get_gil());
+            //if(!transfer_gil(array_of_knights, num)) return true;
+            //else cout << "failed to transfer gil" << endl;
+            if(!transfer_gil(array_of_knights,num)) return true;
+            return true;
+        }
+        else {
+            if (array_of_knights[num].get_level() < opponent->get_level()){
+                int new_hp = array_of_knights[num].get_hp() - opponent->get_dmg() * (opponent->get_level()-array_of_knights[num].get_level());
+                array_of_knights[num].modify_hp(new_hp);
+            }
+            if (array_of_knights[num].get_hp() <= 0){
+                array_of_knights[num].isALive = 0;
+                nok -= 1;
+                num -= 1;
+                return ArmyKnights::fight(opponent); //next knight
+            }
+            if (array_of_knights[num].get_hp() > 0){
+                return true;
+            }
+        }
+    }
+    if (opponent->get_type() == ULTIMECIA){
+        //has excalibur
+        if (hasExcaliburSword()){
+            win = 1;
+            return true;
+        }
+        else{
+            //dont have excalibur or dont have 3 needed items
+            if (!hasGuinevereHair() || !hasLancelotSpear() || !hasPaladinShield()){
+                nok = 0;
+                array_of_knights[0].modify_hp(0);
+                array_of_knights[0].isALive = 0;
+                return false;
+            }
+        }
+    }
+
+}
+
+
+bool ArmyKnights::adventure (Events * events) {
+    switch(events->arr_of_events[event_counter]){
+        case 1:{
+            BaseOpponent * opponent = new MadBear();
+            opponent->modifyLevel(event_counter, events);
+            fight(opponent);
+            delete[] opponent;
+            break;
+        }
+        case 2:{
+            BaseOpponent * opponent = new Bandit();
+            opponent->modifyLevel(event_counter, events);
+            fight(opponent);
+            delete[] opponent;
+            break;
+        }
+        case 3:{
+            BaseOpponent * opponent = new LordLupin();
+            opponent->modifyLevel(event_counter, events);
+            fight(opponent);
+            delete[] opponent;
+            break;
+        }
+        case 4:{
+            BaseOpponent * opponent = new Elf();
+            opponent->modifyLevel(event_counter, events);
+            fight(opponent);
+            delete[] opponent;
+            break;
+        }
+        case 5:{
+            BaseOpponent * opponent = new Troll();
+            opponent->modifyLevel(event_counter, events);
+            fight(opponent);
+            delete[] opponent;
+            break;
+        }
+        case 112:{
+            BaseItem * item = new Phoenixdown2();
+            array_of_knights[num].get_bag()->insertFirst(item);
+            delete[] item;
+            break;
+        }
+        case 113:{
+            BaseItem * item = new Phoenixdown3();
+            array_of_knights[num].get_bag()->insertFirst(item);
+            delete[] item;
+            break;
+        }
+        case 114:{
+            BaseItem * item = new Phoenixdown4();
+            array_of_knights[num].get_bag()->insertFirst(item);
+            delete[] item;
+            break;
+        }
+        case 95:
+            get_PaladinShield();
+            break;
+        case 96:
+            get_LancelotSpear();
+            break;
+        case 97:
+            get_GH();
+            break;
+        case 98:
+            if ((hasGuinevereHair() && hasLancelotSpear()) && hasPaladinShield()) get_Ex();
+            break;
+        case 99:{
+            BaseOpponent * opponent = new Ultimecia();
+            fight(opponent);
+            delete[] opponent;
+        }
+    }
+    printInfo();
+    if (events->arr_of_events[event_counter] == 99){
+        printResult(win);
+        return win;
+    }
+    event_counter++;
+    return ArmyKnights::adventure(events);
+}
 
 /* * * END implementation of class ArmyKnights * * */
 
@@ -280,15 +417,16 @@ void KnightAdventure::loadEvents(const string& file_name){
 }
 
 void KnightAdventure::run(){
-    armyKnights->printInfo();
+    //armyKnights->printInfo();
     //cout << events->count() << endl; //test load event ok
     //cout << events->get(0) << endl;
     //BaseItem * antidote = new Phoenixdown2();
     //cout << armyKnights->array_of_knights[0].bag->toString();
     //armyKnights->array_of_knights[0].bag->insertFirst(antidote); //test insertfirst ok
-    for (int i = 0; i<armyKnights->num; i++){
+    /*for (int i = 0; i<armyKnights->num; i++){
         cout << armyKnights->array_of_knights[i].toString() << endl;
-    }
+    }*/
+    armyKnights->adventure(events);
 }
 
 /* * * END implementation of class KnightAdventure * * */
@@ -319,6 +457,16 @@ Events::Events(const string & file_events){
 
 
 /* END implementation of class Events*/
+
+
+/* BEGIN implementation of class Opponent*/
+void BaseOpponent::modifyLevel(int event_counter, Events * event){
+    int temp = event->get(event_counter);
+    level = (event_counter+temp)%10+1;
+}
+
+/* END implementation of class Opponent*/
+
 
 int len(string str){
     int length = 0;
@@ -366,4 +514,16 @@ bool isPythagoras(int n){
     c = n%10;
     if ((a*a + b*b == c*c) || (a*a + c*c == b*b) || (b*b + c*c == a*a)) return true;
     else return false;
+}
+
+bool transfer_gil(BaseKnight *& arr_of_knight, int num){
+    int extra_gil = 0;
+    if (arr_of_knight[num].gil_check()){
+        extra_gil = arr_of_knight[num].get_gil() - 999;
+        arr_of_knight[num].modify_gil(999);
+        if (num == 0) return false; //stop transfer if lastknight
+        arr_of_knight[num-1].modify_gil(arr_of_knight[num-1].get_gil()+extra_gil); //give extra gil to next knight
+        return transfer_gil(arr_of_knight, num-1); //continue checking
+    }
+    else return false; //stop when gil < 999
 }

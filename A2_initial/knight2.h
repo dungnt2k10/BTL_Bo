@@ -7,6 +7,7 @@
 class BaseKnight;
 class BaseBag;
 class BaseItem;
+class Events;
 
 enum ItemType {ANTIDOTE, PHOENIXDOWN1, PHOENIXDOWN2, PHOENIXDOWN3, PHOENIXDOWN4, NO_ITEM = -1};
 
@@ -22,14 +23,80 @@ public:
     virtual string toString() const;
 };
 
-
+enum OpponentType {MADBEAR = 1, BANDIT = 2, LORDLUPIN = 3, ELF = 4, TROLL = 5, ULTIMECIA = 99};
 class BaseOpponent{
 protected:
-    int hp;
     int dmg;
     int level;
+    int gil_reward;
+    OpponentType opponent_type;
 public:
     void modifyStat();
+    void modifyLevel(int event_counter, Events * event);
+    OpponentType get_type(){
+        return opponent_type;
+    }
+    int get_gil(){
+        return gil_reward;
+    }
+    int get_level(){
+        return level;
+    }
+    int get_dmg(){
+        return dmg;
+    }
+};
+
+class MadBear: public BaseOpponent {
+public:
+    MadBear(){ 
+        dmg = 10;
+        gil_reward = 100;
+        opponent_type = MADBEAR;
+    }
+};
+
+class Troll: public BaseOpponent {
+public:
+    Troll(){ 
+        dmg = 95;
+        gil_reward = 800;
+        opponent_type = TROLL;
+    }
+};
+
+class Bandit: public BaseOpponent {
+public:
+    Bandit(){ 
+        dmg = 15;
+        gil_reward = 150;
+        opponent_type = BANDIT;
+    }
+};
+
+class LordLupin: public BaseOpponent {
+public:
+    LordLupin(){ 
+        dmg = 45;
+        gil_reward = 450;
+        opponent_type = LORDLUPIN;
+    }
+};
+
+class Elf: public BaseOpponent {
+public:
+    Elf(){ 
+        dmg = 75;
+        gil_reward = 750;
+        opponent_type = ELF;
+    }
+};
+
+class Ultimecia: public BaseOpponent {
+public:
+    Ultimecia(){
+        opponent_type = ULTIMECIA;
+    }
 };
 
 enum KnightType { PALADIN = 0, LANCELOT, DRAGON, NORMAL };
@@ -41,16 +108,46 @@ protected:
     int level;
     int gil;
     int antidote;
-    //BaseBag * bag;
+    BaseBag * bag;
     KnightType knightType;
 
 public:
-    BaseBag * bag;
+    
     bool isALive; //show if knight is alive
     bool isPoisoned; //show if knight is poisoned
     static BaseKnight * create(int id, int maxhp, int level, int gil, int antidote, int phoenixdownI);
     string toString() const;
     void modifyStat(); //method to access and modify stat
+    BaseBag * get_bag(){
+        return bag;
+    }
+    KnightType get_knightType(){
+        return knightType;
+    }
+    void reward_gil(int reward){
+        gil += reward;
+    }
+    void modify_gil(int new_gil){
+        gil = new_gil;
+    }
+    int get_gil(){
+        return gil;
+    }
+    bool gil_check(){
+        if (gil > 999){
+            return true; //return true if gil > 999;
+        }
+        return false;
+    }
+    int get_level(){
+        return level;
+    }
+    void modify_hp(int new_hp){
+        hp = new_hp;
+    }
+    int get_hp(){
+        return hp;
+    }
 };
 
 class PaladinKnight: public BaseKnight {
@@ -99,21 +196,55 @@ public:
 };
 
 class ArmyKnights {
+protected:
+    bool PaladinShield;
+    bool LancelotSpear;
+    bool GuinevereHair;
+    bool ExcaliburSword;
 public:
     BaseKnight * array_of_knights;
     BaseBag** armybag;
     int num;
+    int nok;
     ArmyKnights (const string & file_armyknights);
     ~ArmyKnights();
-    //bool fight(BaseOpponent * opponent);
-    //bool adventure (Events * events);
+    bool fight(BaseOpponent * opponent);
+    bool adventure (Events * events);
     int count() const;
     BaseKnight * lastKnight() const;
 
-    //bool hasPaladinShield() const;
-    //bool hasLancelotSpear() const;
-    //bool hasGuinevereHair() const;
-    //bool hasExcaliburSword() const;
+    bool hasPaladinShield() const{
+        if(PaladinShield) return true;
+        return false;
+    }
+    bool hasLancelotSpear() const{
+        if(LancelotSpear) return true;
+        return false;
+    }
+    bool hasGuinevereHair() const{
+        if(GuinevereHair) return true;
+        return false;
+    }
+    bool hasExcaliburSword() const{
+        if(ExcaliburSword) return true;
+        return false;
+    }
+
+    void get_PaladinShield(){
+        PaladinShield = 1;
+    }
+
+    void get_LancelotSpear(){
+        LancelotSpear = 1;
+    }
+
+    void get_GH(){
+        GuinevereHair = 1;
+    }
+
+    void get_Ex(){
+        ExcaliburSword = 1;
+    }
 
     void printInfo() const;
     void printResult(bool win) const;
@@ -207,4 +338,6 @@ void split(string str, char seperator, string arr[]);
 bool isPrime(int num);
 
 bool isPythagoras(int n);
+
+bool transfer_gil(BaseKnight *& arr_of_knight, int num);
 #endif // __KNIGHT2_H__
