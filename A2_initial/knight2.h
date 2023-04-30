@@ -23,7 +23,7 @@ public:
     virtual string toString() const;
 };
 
-enum OpponentType {MADBEAR = 1, BANDIT = 2, LORDLUPIN = 3, ELF = 4, TROLL = 5, ULTIMECIA = 99};
+enum OpponentType {MADBEAR = 1, BANDIT = 2, LORDLUPIN = 3, ELF = 4, TROLL = 5, TORNBERY = 6, QUEEN = 7, ULTIMECIA = 99};
 class BaseOpponent{
 protected:
     int dmg;
@@ -92,6 +92,21 @@ public:
     }
 };
 
+class Tornbery: public BaseOpponent {
+public:
+    Tornbery(){
+
+        opponent_type = TORNBERY;
+    }
+};
+
+class Queen_of_Cards: public BaseOpponent {
+public: 
+    Queen_of_Cards(){
+        opponent_type = QUEEN;
+    }
+};
+
 class Ultimecia: public BaseOpponent {
 public:
     Ultimecia(){
@@ -147,6 +162,13 @@ public:
     }
     int get_hp(){
         return hp;
+    }
+    void modify_level(int new_level){
+        level = new_level;
+        if (level >= 10) level = 10;
+    }
+    int get_maxhp(){
+        return maxhp;
     }
 };
 
@@ -341,3 +363,8 @@ bool isPythagoras(int n);
 
 bool transfer_gil(BaseKnight *& arr_of_knight, int num);
 #endif // __KNIGHT2_H__
+void shift_item_3(BaseBag * bag);
+
+bool found_antidote(BaseBag * bag);
+
+void use_item(BaseBag * bag, ItemType item_to_use);

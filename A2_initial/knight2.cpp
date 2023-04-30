@@ -267,7 +267,7 @@ ArmyKnights::~ArmyKnights(){
 
 BaseKnight * ArmyKnights::lastKnight() const {
     if (!array_of_knights[0].isALive) return nullptr; //no last knight return null
-    return array_of_knights; //return pointer to the last knight
+    return array_of_knights+num; //return pointer to the last knight
 }
 
 bool ArmyKnights::fight(BaseOpponent * opponent){
@@ -287,15 +287,6 @@ bool ArmyKnights::fight(BaseOpponent * opponent){
                 int new_hp = array_of_knights[num].get_hp() - opponent->get_dmg() * (opponent->get_level()-array_of_knights[num].get_level());
                 array_of_knights[num].modify_hp(new_hp);
             }
-            if (array_of_knights[num].get_hp() <= 0){
-                array_of_knights[num].isALive = 0;
-                nok -= 1;
-                num -= 1;
-                return ArmyKnights::fight(opponent); //next knight
-            }
-            if (array_of_knights[num].get_hp() > 0){
-                return true;
-            }
         }
     }
     if (opponent->get_type() == ULTIMECIA){
@@ -313,6 +304,47 @@ bool ArmyKnights::fight(BaseOpponent * opponent){
                 return false;
             }
         }
+    }
+    if (opponent->get_type() == 6){
+        if (array_of_knights[num].get_level() < opponent->get_level()){
+            bool have_antidote = found_antidote(array_of_knights[num].get_bag());
+            if (have_antidote){
+                use_item(array_of_knights[num].get_bag(),ANTIDOTE);
+            }
+            if (array_of_knights[num].get_knightType() != DRAGON && !have_antidote){
+                int new_hp = array_of_knights[num].get_hp() - 10;
+                array_of_knights[num].modify_hp(new_hp);
+                shift_item_3(array_of_knights[num].get_bag()); //drop 3 items
+            }
+        }
+        else{
+            int new_level = array_of_knights[num].get_level() + 1;
+            array_of_knights[num].modify_level(new_level);
+            return true;
+        }
+    }
+    if (opponent->get_type() == 7){
+        if (array_of_knights[num].get_level() < opponent->get_level()){
+            if (array_of_knights[num].get_knightType() != PALADIN){
+                int new_gil = array_of_knights[num].get_gil()/2;
+                array_of_knights[num].modify_gil(new_gil);
+            }
+        }
+        else{
+            int new_gil = array_of_knights[num].get_gil()*2;
+            array_of_knights[num].modify_gil(new_gil);
+            if(!transfer_gil(array_of_knights,num)) return true;
+            return true;
+        }
+    }
+    if (array_of_knights[num].get_hp() <= 0){
+                array_of_knights[num].isALive = 0;
+                nok -= 1;
+                num -= 1;
+                return ArmyKnights::fight(opponent); //next knight
+    }
+    if (array_of_knights[num].get_hp() > 0){
+                return true;
     }
 
 }
@@ -355,6 +387,36 @@ bool ArmyKnights::adventure (Events * events) {
             delete[] opponent;
             break;
         }
+        case 6:{
+            BaseOpponent * opponent = new Tornbery();
+            opponent->modifyLevel(event_counter, events);
+            fight(opponent);
+            delete[] opponent;
+            break;
+        }
+        case 7:{
+            BaseOpponent * opponent = new Queen_of_Cards();
+            opponent->modifyLevel(event_counter, events);
+            fight(opponent);
+            delete[] opponent;
+            break;
+        }
+        case 8:
+            if (array_of_knights[num].get_knightType() == PALADIN && array_of_knights[num].get_hp() < array_of_knights[num].get_maxhp()/3){
+                int new_hp = array_of_knights[num].get_hp() + array_of_knights[num].get_maxhp() * 0.2;
+                if (new_hp > array_of_knights[num].get_maxhp()) new_hp = array_of_knights[num].get_maxhp();
+                array_of_knights[num].modify_hp(new_hp);
+            }
+            else if (array_of_knights[num].get_knightType() != PALADIN){
+                if (array_of_knights[num].get_hp() < array_of_knights[num].get_maxhp()/3 && array_of_knights[num].get_gil() >= 50){
+                    int new_hp = array_of_knights[num].get_hp() + array_of_knights[num].get_maxhp() * 0.2;
+                    if (new_hp > array_of_knights[num].get_maxhp()) new_hp = array_of_knights[num].get_maxhp();
+                    array_of_knights[num].modify_hp(new_hp);
+                    int new_gil = array_of_knights[num].get_gil() - 50;
+                    array_of_knights[num].modify_gil(new_gil);
+                }
+            }
+            break;
         case 112:{
             BaseItem * item = new Phoenixdown2();
             array_of_knights[num].get_bag()->insertFirst(item);
@@ -526,4 +588,40 @@ bool transfer_gil(BaseKnight *& arr_of_knight, int num){
         return transfer_gil(arr_of_knight, num-1); //continue checking
     }
     else return false; //stop when gil < 999
+}
+
+void shift_item_3(BaseBag * bag){
+    bag->space[0] = NO_ITEM;
+    bag->space[1] = NO_ITEM;
+    bag->space[2] = NO_ITEM;
+    for (int i = 0; i < bag->sp - 2; i++){
+        bag->space[i] = bag->space[i+3];
+        if (i>=3 && bag->space[i] == NO_ITEM) break;
+    }
+    bag->space[bag->sp-1] = NO_ITEM;
+    bag->space[bag->sp-2] = NO_ITEM;
+    bag->space[bag->sp-3] = NO_ITEM;
+
+}
+
+bool found_antidote(BaseBag * bag){
+    for (int i = 0; i < bag->sp; i++){
+        if (bag->space[i] == ANTIDOTE) return true;
+    }
+    return false;
+}
+
+void use_item(BaseBag * bag, ItemType item_to_use){
+    ItemType temp;
+    temp = bag->space[0];
+    for (int i = 0; i < bag->sp; i++){
+        if (bag->space[i] == item_to_use){
+            bag->space[i] = temp;
+            break; //switch item
+        }
+    }
+    for (int i = 0; i < bag->sp - 1; i++){
+        bag->space[i] = bag->space[i+1]; //switch item to the left
+    }
+    bag->space[bag->sp-1] = NO_ITEM;
 }
