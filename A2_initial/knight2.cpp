@@ -3,7 +3,7 @@
 /* * * BEGIN implementation of class BaseBag * * */
 
 string BaseBag::toString() const{
-    string item[5] = {"Antidote", "PhoenixdownI", "PhoenixdownII", "PhoenixdownIII", "PhoenixdownIV"};
+    string item[5] = {"Antidote", "PhoenixI", "PhoenixII", "PhoenixIII", "PhoenixIV"};
     string s("");
     int number_of_owned_item = 0;
     for (int i = 0; i < sp; i++){
@@ -246,7 +246,6 @@ ArmyKnights::ArmyKnights(const string& file_armyknights){
     string temp = "";
     string arr[5];
     int attr[5];
-    armybag = new BaseBag * [nok];
     for (int i = 0; i < nok; i++){ // create and load parameter to knights
         getline(file, temp);
         split(temp, ' ', arr);
@@ -259,12 +258,17 @@ ArmyKnights::ArmyKnights(const string& file_armyknights){
     LancelotSpear = 0;
     GuinevereHair = 0;
     ExcaliburSword = 0;
+    met_hades = 0;
+    met_omega = 0;
+    ultimecia_hp = 5000;
+    win = 0;
+    event_counter = 0;
     file.close();
 }
 
-ArmyKnights::~ArmyKnights(){
-    delete[] array_of_knights;
-}
+//ArmyKnights::~ArmyKnights(){
+    //delete[] array_of_knights;
+//}
 
 BaseKnight * ArmyKnights::lastKnight() const {
     if (!array_of_knights[0].isALive) return nullptr; //no last knight return null
@@ -302,6 +306,10 @@ bool ArmyKnights::fight(BaseOpponent * opponent){
             //fight ultimecia 
             if ((hasGuinevereHair() && hasLancelotSpear()) && hasPaladinShield()){
                 if (array_of_knights[num].get_knightType() == NORMAL){ //skip normal
+                    if (num == 0){
+                        nok = 0;
+                        return false;
+                    }
                     num -= 1;
                     return fight(opponent);
                 }
@@ -441,8 +449,6 @@ bool ArmyKnights::fight(BaseOpponent * opponent){
 
 
 bool ArmyKnights::adventure (Events * events) {
-    bool met_omega = false;
-    bool met_hades = false;
     switch(events->arr_of_events[event_counter]){
         case 1:{
             BaseOpponent * opponent = new MadBear();
@@ -568,12 +574,19 @@ bool ArmyKnights::adventure (Events * events) {
         }
     }
     printInfo();
+    //cout << "counter: "<< events->arr_of_events[event_counter] << endl;
+    //int temp = events->arr_of_events[event_counter];
+    //cout << "result: "<< win << endl;
     if (events->arr_of_events[event_counter] == 99){
         printResult(win);
-        return win;
+        return true;
     }
-    event_counter++;
-    return ArmyKnights::adventure(events);
+    else{ 
+        event_counter++;
+        //cout << "event counter: "<< event_counter << endl;
+        //return false;
+        return ArmyKnights::adventure(events);
+    }
 }
 
 /* * * END implementation of class ArmyKnights * * */
@@ -602,7 +615,10 @@ void KnightAdventure::run(){
     /*for (int i = 0; i<armyKnights->num; i++){
         cout << armyKnights->array_of_knights[i].toString() << endl;
     }*/
+    //for (int i = 0; i < events->num_of_events; i++){
     armyKnights->adventure(events);
+    //}
+    return;
 }
 
 /* * * END implementation of class KnightAdventure * * */
@@ -626,6 +642,7 @@ Events::Events(const string & file_events){
         for (int i = 0; i < num_of_events; i++){
             arr_of_events[i] = stoi(arr_temp[i]);
         }
+        file.close();
 }
 
 

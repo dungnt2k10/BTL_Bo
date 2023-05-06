@@ -2,7 +2,6 @@
 #define __KNIGHT2_H__
 
 #include "main.h"
-
 // #define DEBUG
 class BaseKnight;
 class BaseBag;
@@ -31,7 +30,7 @@ protected:
     int gil_reward;
     OpponentType opponent_type;
 public:
-    void modifyStat();
+    //void modifyStat();
     void modifyLevel(int event_counter, Events * event);
     OpponentType get_type(){
         return opponent_type;
@@ -242,15 +241,17 @@ protected:
     bool GuinevereHair;
     bool ExcaliburSword;
 public:
-    int event_counter = 0;
-    bool win = 0;
-    int ultimecia_hp = 5000;
+    bool met_omega;
+    bool met_hades;
+    int event_counter;
+    bool win;
+    int ultimecia_hp;
     BaseKnight * array_of_knights;
-    BaseBag** armybag;
+    //BaseBag** armybag;
     int num;
     int nok;
     ArmyKnights (const string & file_armyknights);
-    ~ArmyKnights();
+    //~ArmyKnights();
     bool fight(BaseOpponent * opponent);
     bool adventure (Events * events);
     int count() const;
@@ -347,9 +348,9 @@ public:
     int num_of_events;
     int * arr_of_events;
     Events(const string & file_events);
-    ~Events(){
-        delete[] arr_of_events;
-    }
+    //~Events(){
+        //delete[] arr_of_events;
+    //}
     int count() const;
     int get(int i) const{
         return arr_of_events[i];
@@ -363,10 +364,10 @@ private:
 
 public:
     KnightAdventure();
-    ~KnightAdventure(){
-        delete[] armyKnights;
-        delete[] events;
-    }; // TODO:
+    //~KnightAdventure(){
+        //delete[] armyKnights;
+        //delete[] events;
+    //}; // TODO:
 
     void loadArmyKnights(const string &);
     void loadEvents(const string &);
