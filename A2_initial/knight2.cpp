@@ -1,9 +1,5 @@
 #include "knight2.h"
 
-int event_counter = 0;
-bool win = 0;
-int ultimecia_hp = 5000;
-
 /* * * BEGIN implementation of class BaseBag * * */
 
 string BaseBag::toString() const{
