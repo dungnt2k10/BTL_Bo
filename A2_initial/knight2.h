@@ -242,6 +242,9 @@ protected:
     bool GuinevereHair;
     bool ExcaliburSword;
 public:
+    int event_counter = 0;
+    bool win = 0;
+    int ultimecia_hp = 5000;
     BaseKnight * array_of_knights;
     BaseBag** armybag;
     int num;
