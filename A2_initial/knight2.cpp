@@ -2,6 +2,7 @@
 
 int event_counter = 0;
 bool win = 0;
+int ultimecia_hp = 5000;
 
 /* * * BEGIN implementation of class BaseBag * * */
 
@@ -34,11 +35,11 @@ PKnightBag::PKnightBag(BaseKnight * knight, int phoenixdown1, int antidote){
         for (int i = 0; i < this->sp; i++){
             this->space[i] = NO_ITEM; //put no item in the bag
         }
-        for (int i = 0; i < phoenixdown1; i++){
-            this->space[i] = PHOENIXDOWN1; //add phoenixdown1 to the bag
-        }
-        for (int i = phoenixdown1; i < phoenixdown1 + antidote; i++){
+        for (int i = 0; i < antidote; i++){
             this->space[i] = ANTIDOTE; //add antidote to the bag
+        }
+        for (int i = antidote; i < phoenixdown1 + antidote; i++){
+            this->space[i] = PHOENIXDOWN1; //add phoenixdown1 to the bag
         }
 }
 
@@ -51,11 +52,11 @@ LKnightBag::LKnightBag(BaseKnight * knight, int phoenixdown1, int antidote){
         for (int i = 0; i < this->sp; i++){
             this->space[i] = NO_ITEM; //put no item in the bag
         }
-        for (int i = 0; i < phoenixdown1; i++){
-            this->space[i] = PHOENIXDOWN1; //add phoenixdown1 to the bag
-        }
-        for (int i = phoenixdown1; i < phoenixdown1 + antidote; i++){
+        for (int i = 0; i < antidote; i++){
             this->space[i] = ANTIDOTE; //add antidote to the bag
+        }
+        for (int i = antidote; i < phoenixdown1 + antidote; i++){
+            this->space[i] = PHOENIXDOWN1; //add phoenixdown1 to the bag
         }
 }
 
@@ -82,11 +83,11 @@ NKnightBag::NKnightBag(BaseKnight * knight, int phoenixdown1, int antidote){
         for (int i = 0; i < this->sp; i++){
             this->space[i] = NO_ITEM; //put no item in the bag
         }
-        for (int i = 0; i < phoenixdown1; i++){
-            this->space[i] = PHOENIXDOWN1; //add phoenixdown1 to the bag
-        }
-        for (int i = phoenixdown1; i < phoenixdown1 + antidote; i++){
+        for (int i = 0; i < antidote; i++){
             this->space[i] = ANTIDOTE; //add antidote to the bag
+        }
+        for (int i = antidote; i < phoenixdown1 + antidote; i++){
+            this->space[i] = PHOENIXDOWN1; //add phoenixdown1 to the bag
         }
 }
 
@@ -152,6 +153,8 @@ BaseKnight * BaseKnight::create(int id, int maxhp, int level, int gil, int antid
         temp->knightType = PALADIN;
         temp->isALive = true;
         temp->isPoisoned = false;
+        temp->base_damage = 0.06;
+
         temp->bag = new PKnightBag(temp, phoenixdownI, antidote);
         
         return temp;
@@ -167,6 +170,7 @@ BaseKnight * BaseKnight::create(int id, int maxhp, int level, int gil, int antid
         temp->knightType = LANCELOT;
         temp->isALive = true;
         temp->isPoisoned = false;
+        temp->base_damage = 0.05;
 
         temp->bag = new LKnightBag(temp, phoenixdownI, antidote); 
 
@@ -183,6 +187,7 @@ BaseKnight * BaseKnight::create(int id, int maxhp, int level, int gil, int antid
         temp->knightType = DRAGON;
         temp->isALive = true;
         temp->isPoisoned = false;
+        temp->base_damage = 0.075;
 
         temp->bag = new DKnightBag(temp, phoenixdownI, antidote);
 
@@ -271,7 +276,8 @@ BaseKnight * ArmyKnights::lastKnight() const {
 }
 
 bool ArmyKnights::fight(BaseOpponent * opponent){
-    if (lastKnight()->get_hp() <= 0 || lastKnight() == nullptr){
+    if ((num == 0 && array_of_knights[num].get_hp() <= 0) || lastKnight() == nullptr){
+        nok = 0;
         return false;
     }
     if (opponent->get_type() == 1 || opponent->get_type() == 2 || opponent->get_type() == 3 || opponent->get_type() == 4 || opponent->get_type() == 5){
@@ -296,6 +302,34 @@ bool ArmyKnights::fight(BaseOpponent * opponent){
             return true;
         }
         else{
+            
+            //fight ultimecia 
+            if ((hasGuinevereHair() && hasLancelotSpear()) && hasPaladinShield()){
+                if (array_of_knights[num].get_knightType() == NORMAL){ //skip normal
+                    num -= 1;
+                    return fight(opponent);
+                }
+                else if (num == 0 && array_of_knights[num].get_knightType() == NORMAL){
+                    nok = 0;
+                    return false;
+                }
+                else{
+                    ultimecia_hp -= array_of_knights[num].get_hp() * array_of_knights[num].get_level() * array_of_knights[num].base_damage;
+                    if (ultimecia_hp > 0){
+                        array_of_knights[num].modify_hp(0);
+                        num -= 1;
+                        nok -= 1;
+                        array_of_knights[num].isALive = 0;
+                        return fight(opponent);
+                        
+                    }
+                    else{
+                        win = 1;
+                        return true;
+                    }
+                }
+            } 
+
             //dont have excalibur or dont have 3 needed items
             if (!hasGuinevereHair() || !hasLancelotSpear() || !hasPaladinShield()){
                 nok = 0;
@@ -337,11 +371,71 @@ bool ArmyKnights::fight(BaseOpponent * opponent){
             return true;
         }
     }
+    if (opponent->get_type() == 9){
+        if (array_of_knights[num].get_knightType() == DRAGON || (array_of_knights[num].get_level() == 10 && array_of_knights[num].get_hp() == array_of_knights[num].get_maxhp())){
+            array_of_knights[num].modify_level(10);
+            array_of_knights[num].modify_gil(999);
+            return true;
+        }
+        else {
+            array_of_knights[num].modify_hp(0);
+        }
+
+    }
+    if (opponent->get_type() == 11){
+        if (array_of_knights[num].get_level() == 10 || (array_of_knights[num].get_knightType() == PALADIN && array_of_knights[num].get_level() >= 8)){
+            get_PaladinShield();
+            return true;
+        }
+        else {
+            array_of_knights[num].modify_hp(0);
+        }
+    }
+    if (array_of_knights[num].get_hp() < array_of_knights[num].get_maxhp()/4){
+        if (find_phoenixdown2(array_of_knights[num].get_bag())){
+            array_of_knights[num].modify_hp(array_of_knights[num].get_maxhp());
+            use_item(array_of_knights[num].get_bag(), PHOENIXDOWN2);
+        }
+    }
+    if (array_of_knights[num].get_hp() < array_of_knights[num].get_maxhp()/3){
+        if (find_phoenixdown3(array_of_knights[num].get_bag())){
+            if (array_of_knights[num].get_hp() <= 0){
+                array_of_knights[num].modify_hp(array_of_knights[num].get_maxhp()/3);
+                use_item(array_of_knights[num].get_bag(), PHOENIXDOWN3);
+            }
+            else{
+                array_of_knights[num].modify_hp(array_of_knights[num].get_hp()+array_of_knights[num].get_maxhp()/4);
+                use_item(array_of_knights[num].get_bag(), PHOENIXDOWN3);
+            }
+        }
+    }
+    if (array_of_knights[num].get_hp() < array_of_knights[num].get_maxhp()/2){
+        if (find_phoenixdown4(array_of_knights[num].get_bag())){
+            if (array_of_knights[num].get_hp() <= 0){
+                array_of_knights[num].modify_hp(array_of_knights[num].get_maxhp()/2);
+                use_item(array_of_knights[num].get_bag(), PHOENIXDOWN4);
+            }
+            else{
+                array_of_knights[num].modify_hp(array_of_knights[num].get_hp()+array_of_knights[num].get_maxhp()/5);
+                use_item(array_of_knights[num].get_bag(), PHOENIXDOWN4);
+            }
+        }
+    }
     if (array_of_knights[num].get_hp() <= 0){
+            if (find_phoenixdown1(array_of_knights[num].get_bag())){
+                array_of_knights[num].modify_hp(array_of_knights[num].get_maxhp());
+                use_item(array_of_knights[num].get_bag(), PHOENIXDOWN1);
+            }
+            else if (array_of_knights[num].get_gil() >= 100){
+                array_of_knights[num].modify_gil(array_of_knights[num].get_gil()-100);
+                array_of_knights[num].modify_hp(0.5*array_of_knights[num].get_maxhp());
+            }
+            else{
                 array_of_knights[num].isALive = 0;
                 nok -= 1;
                 num -= 1;
                 return ArmyKnights::fight(opponent); //next knight
+            }
     }
     if (array_of_knights[num].get_hp() > 0){
                 return true;
@@ -351,6 +445,8 @@ bool ArmyKnights::fight(BaseOpponent * opponent){
 
 
 bool ArmyKnights::adventure (Events * events) {
+    bool met_omega = false;
+    bool met_hades = false;
     switch(events->arr_of_events[event_counter]){
         case 1:{
             BaseOpponent * opponent = new MadBear();
@@ -417,21 +513,42 @@ bool ArmyKnights::adventure (Events * events) {
                 }
             }
             break;
+        case 9: 
+            array_of_knights[num].modify_hp(array_of_knights[num].get_maxhp());
+            break;
+        case 10:{
+            if (!met_omega){
+            BaseOpponent * opponent = new Omega();
+            fight(opponent);
+            delete[] opponent;
+            met_omega = true;
+            }
+            break;
+        }
+        case 11:{
+            if (!met_hades){
+                BaseOpponent * opponent = new Hades();
+                fight(opponent);
+                delete[] opponent;
+                met_hades = true;
+            }
+            break;
+        }
         case 112:{
             BaseItem * item = new Phoenixdown2();
-            array_of_knights[num].get_bag()->insertFirst(item);
+            transfer_item(array_of_knights, num, item);
             delete[] item;
             break;
         }
         case 113:{
             BaseItem * item = new Phoenixdown3();
-            array_of_knights[num].get_bag()->insertFirst(item);
+            transfer_item(array_of_knights, num, item);
             delete[] item;
             break;
         }
         case 114:{
             BaseItem * item = new Phoenixdown4();
-            array_of_knights[num].get_bag()->insertFirst(item);
+            transfer_item(array_of_knights, num, item);
             delete[] item;
             break;
         }
@@ -590,7 +707,20 @@ bool transfer_gil(BaseKnight *& arr_of_knight, int num){
     else return false; //stop when gil < 999
 }
 
-void shift_item_3(BaseBag * bag){
+bool transfer_item(BaseKnight *& arr_of_knight, int num, BaseItem * item){
+    if (arr_of_knight[num].check_bag()){
+        arr_of_knight[num].get_bag()->insertFirst(item);
+        return true;
+    }
+    else if (num == 0 && !arr_of_knight[num].check_bag()){
+        return false;
+    }
+    else{
+        return transfer_item(arr_of_knight, num - 1, item);
+    }
+}
+
+void shift_item_3(BaseBag * bag){//drop 3 items
     bag->space[0] = NO_ITEM;
     bag->space[1] = NO_ITEM;
     bag->space[2] = NO_ITEM;
@@ -611,6 +741,34 @@ bool found_antidote(BaseBag * bag){
     return false;
 }
 
+bool find_phoenixdown1(BaseBag * bag){
+    for (int i  = 0; i < bag->sp; i++){
+        if (bag->space[i] == PHOENIXDOWN1) return true;
+    }
+    return false;
+}
+
+bool find_phoenixdown2(BaseBag * bag){
+    for (int i  = 0; i < bag->sp; i++){
+        if (bag->space[i] == PHOENIXDOWN2) return true;
+    }
+    return false;
+}
+
+bool find_phoenixdown3(BaseBag * bag){
+    for (int i  = 0; i < bag->sp; i++){
+        if (bag->space[i] == PHOENIXDOWN3) return true;
+    }
+    return false;
+}
+
+bool find_phoenixdown4(BaseBag * bag){
+    for (int i  = 0; i < bag->sp; i++){
+        if (bag->space[i] == PHOENIXDOWN4) return true;
+    }
+    return false;
+}
+
 void use_item(BaseBag * bag, ItemType item_to_use){
     ItemType temp;
     temp = bag->space[0];
@@ -625,3 +783,4 @@ void use_item(BaseBag * bag, ItemType item_to_use){
     }
     bag->space[bag->sp-1] = NO_ITEM;
 }
+

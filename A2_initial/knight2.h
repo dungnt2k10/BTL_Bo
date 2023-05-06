@@ -23,7 +23,7 @@ public:
     virtual string toString() const;
 };
 
-enum OpponentType {MADBEAR = 1, BANDIT = 2, LORDLUPIN = 3, ELF = 4, TROLL = 5, TORNBERY = 6, QUEEN = 7, ULTIMECIA = 99};
+enum OpponentType {MADBEAR = 1, BANDIT = 2, LORDLUPIN = 3, ELF = 4, TROLL = 5, TORNBERY = 6, QUEEN = 7, OMEGA = 9, HADES = 11, ULTIMECIA = 99};
 class BaseOpponent{
 protected:
     int dmg;
@@ -107,6 +107,20 @@ public:
     }
 };
 
+class Omega: public BaseOpponent {
+public:
+    Omega(){
+        opponent_type = OMEGA;
+    }
+};
+
+class Hades: public BaseOpponent {
+public:
+    Hades(){
+        opponent_type = HADES;
+    }
+};
+
 class Ultimecia: public BaseOpponent {
 public:
     Ultimecia(){
@@ -128,11 +142,11 @@ protected:
 
 public:
     
+    float base_damage;
     bool isALive; //show if knight is alive
     bool isPoisoned; //show if knight is poisoned
     static BaseKnight * create(int id, int maxhp, int level, int gil, int antidote, int phoenixdownI);
     string toString() const;
-    void modifyStat(); //method to access and modify stat
     BaseBag * get_bag(){
         return bag;
     }
@@ -169,6 +183,10 @@ public:
     }
     int get_maxhp(){
         return maxhp;
+    }
+    bool check_bag(){
+        if (bag->space[bag->sp-1] != NO_ITEM) return false;
+        return true;
     }
 };
 
@@ -362,9 +380,20 @@ bool isPrime(int num);
 bool isPythagoras(int n);
 
 bool transfer_gil(BaseKnight *& arr_of_knight, int num);
-#endif // __KNIGHT2_H__
+
+bool transfer_item(BaseKnight *& arr_of_knight, int num, BaseItem * item);
+
 void shift_item_3(BaseBag * bag);
 
 bool found_antidote(BaseBag * bag);
 
 void use_item(BaseBag * bag, ItemType item_to_use);
+
+bool find_phoenixdown1(BaseBag * bag);
+bool find_phoenixdown2(BaseBag * bag);
+bool find_phoenixdown3(BaseBag * bag);
+bool find_phoenixdown4(BaseBag * bag);
+
+
+
+#endif // __KNIGHT2_H__
