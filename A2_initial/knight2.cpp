@@ -219,7 +219,7 @@ void ArmyKnights::printInfo() const {
     cout << "No. knights: " << this->count();
       if (this->count() > 0) {
         BaseKnight * lknight = lastKnight(); // last knight
-        cout << ";" << lknight->toString() << endl;
+        cout << ";" << lknight->toString();
     }
     cout << ";PaladinShield:" << this->hasPaladinShield()
         << ";LancelotSpear:" << this->hasLancelotSpear()
