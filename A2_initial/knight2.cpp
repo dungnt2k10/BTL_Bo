@@ -15,7 +15,7 @@ string BaseBag::toString() const{
         number_of_owned_item++;
     }
     s += "Bag[count=" + to_string(number_of_owned_item);
-    if (number_of_owned_item > 0) s+= ";";
+    s+= ";";
     for (int i = 0; i < sp; i++){
         if (space[i] == NO_ITEM) break;
         if (space[i+1] == NO_ITEM) s += item[space[i]];
