@@ -230,7 +230,7 @@ void ArmyKnights::printInfo() const {
 }
 
 void ArmyKnights::printResult(bool win) const {
-    cout << (win ? "WIN" : "LOSE") << endl;
+    cout << (win ? "WIN" : "LOSE");
 }
 
 int ArmyKnights::count() const{
