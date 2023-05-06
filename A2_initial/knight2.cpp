@@ -568,6 +568,7 @@ bool ArmyKnights::adventure (Events * events) {
             BaseOpponent * opponent = new Ultimecia();
             fight(opponent);
             delete[] opponent;
+            break;
         }
     }
     printInfo();
