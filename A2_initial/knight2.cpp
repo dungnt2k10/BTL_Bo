@@ -438,7 +438,7 @@ bool ArmyKnights::fight(BaseOpponent * opponent){
                 array_of_knights[num].isALive = 0;
                 nok -= 1;
                 num -= 1;
-                return ArmyKnights::fight(opponent); //next knight
+                return false; //next knight
             }
     }
     if (array_of_knights[num].get_hp() > 0){
